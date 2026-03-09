@@ -47,7 +47,7 @@ export default function LoginPage() {
             <div style={styles.logoIcon}>🏨</div>
             <span style={styles.logoText}>SmartHostel</span>
           </div>
-          <h1 style={styles.heroTitle}>Manage your hostel<br /><span style={styles.accent}>intelligently.</span></h1>
+          <h1 style={styles.heroTitle}>Manage ------ hostel<br /><span style={styles.accent}>intelligently.</span></h1>
           <p style={styles.heroSub}>One platform for wardens, students, and security staff. Real-time gatepass QR, fee tracking, complaints — all in one place.</p>
 
           <div style={styles.features}>
