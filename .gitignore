@@ -1,0 +1,5 @@
+Backend/jdk17
+Backend/target
+node_modules
+.env
+*.class

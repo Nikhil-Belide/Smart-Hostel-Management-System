@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      DB_USER: hostel_user
+      DB_PASS: ${DB_PASS:-hostel_pass}
+      JWT_SECRET: ${JWT_SECRET:-3cfa76ef14937c1c0ea519f8fc057a80fcd04a7420f8e8bcd0a7567c272e007b}
+      MAIL_USER: ${MAIL_USER:-your@gmail.com}
+      MAIL_PASS: ${MAIL_PASS:-your-app-password}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: smart_hostel_db
+      MYSQL_USER: hostel_user
+      MYSQL_PASSWORD: ${DB_PASS:-hostel_pass}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS:-root_pass}
+    ports:
+      - "3306:3306"
+    volumes:
+      - hostel_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  hostel_data:
