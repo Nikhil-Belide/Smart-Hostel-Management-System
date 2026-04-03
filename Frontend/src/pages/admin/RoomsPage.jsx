@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
 
-const EMPTY_ROOM = { roomNumber:'', type:'SINGLE', capacity:1, floor:'', block:'', monthlyFee:'', amenities:'' }
+const EMPTY_ROOM = { roomNumber:'', type:'SINGLE', capacity:1, floor:'', block:'', amenities:'' }
 const EMPTY_BOOKING = { studentId:'', roomId:'', checkInDate: new Date().toISOString().split('T')[0] }
 
 export default function RoomsPage() {
@@ -30,13 +30,31 @@ export default function RoomsPage() {
   useEffect(() => { load() }, [])
 
   const saveRoom = async e => {
-    e.preventDefault(); setSaving(true)
-    try {
-      await api.post('/rooms', { ...form, capacity: Number(form.capacity), floor: Number(form.floor) || undefined, monthlyFee: Number(form.monthlyFee) })
-      toast.success('Room created!'); setRoomModal(false); setForm(EMPTY_ROOM); load()
-    } catch (err) { toast.error(err.response?.data?.message || 'Failed') }
-    setSaving(false)
+  e.preventDefault()
+  setSaving(true)
+
+  try {
+    const payload = {
+      roomNumber: form.roomNumber,
+      type: form.type,
+      capacity: Number(form.capacity),
+      floor: form.floor ? Number(form.floor) : undefined,
+      block: form.block || undefined,
+      amenities: form.amenities || undefined
+    }
+
+    await api.post('/rooms', payload)
+
+    toast.success('Room created!')
+    setRoomModal(false)
+    setForm(EMPTY_ROOM)
+    load()
+  } catch (err) {
+    toast.error(err.response?.data?.message || 'Failed')
   }
+
+  setSaving(false)
+}
 
   const saveBooking = async e => {
     e.preventDefault(); setSaving(true)
@@ -86,7 +104,7 @@ export default function RoomsPage() {
                 <div>🏢 Floor {room.floor || '—'}</div>
                 <div>🏷️ Block {room.block || '—'}</div>
                 <div>👥 {room.currentOccupants}/{room.capacity} occupied</div>
-                <div>💰 ₹{room.monthlyFee?.toLocaleString()}/mo</div>
+                
               </div>
               {/* Capacity bar */}
               <div style={{ marginTop:'0.75rem', background:'var(--bg2)', borderRadius:99, height:4 }}>
@@ -121,8 +139,7 @@ export default function RoomsPage() {
               <div className="grid-2">
                 <div className="input-group"><label className="input-label">Capacity *</label>
                   <input className="input" type="number" min={1} required value={form.capacity} onChange={e => setForm({...form,capacity:e.target.value})} /></div>
-                <div className="input-group"><label className="input-label">Monthly Fee (₹) *</label>
-                  <input className="input" type="number" required value={form.monthlyFee} onChange={e => setForm({...form,monthlyFee:e.target.value})} /></div>
+               
               </div>
               <div className="grid-2">
                 <div className="input-group"><label className="input-label">Floor</label>
@@ -163,7 +180,7 @@ export default function RoomsPage() {
                 <select className="input" required value={booking.roomId} onChange={e => setBooking({...booking,roomId:e.target.value})}>
                   <option value="">Choose room...</option>
                   {rooms.filter(r => r.availableSlots > 0).map(r => (
-                    <option key={r.id} value={r.id}>{r.roomNumber} ({r.type}) — {r.availableSlots} slots — ₹{r.monthlyFee}/mo</option>
+                    <option key={r.id} value={r.id}>{r.roomNumber} ({r.type}) — {r.availableSlots} slots</option>
                   ))}
                 </select></div>
               <div className="input-group"><label className="input-label">Check-in Date *</label>

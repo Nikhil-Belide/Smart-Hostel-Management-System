@@ -75,7 +75,7 @@ class BookingController {
                 .body(ApiResponse.success("Room allocated successfully", roomService.allocateRoom(request)));
     }
 
-    @PatchMapping("/{id}/checkout")
+    @PostMapping("/{id}/checkout")
     @PreAuthorize("hasAnyRole('ADMIN', 'WARDEN')")
     public ResponseEntity<ApiResponse<RoomDtos.BookingResponse>> checkout(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success("Student checked out", roomService.checkout(id)));

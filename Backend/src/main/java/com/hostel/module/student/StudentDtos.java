@@ -28,6 +28,7 @@ public class StudentDtos {
         private String parentPhone;
         private String parentEmail;
         private String address;
+        private Double hostelFee;
         private LocalDate dateOfBirth;
         private String gender;
         private String bloodGroup;

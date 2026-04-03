@@ -1,5 +1,10 @@
 package com.hostel.module.student;
-
+import com.hostel.module.fee.FeeRecord;
+import com.hostel.module.fee.FeeRepository;
+import com.hostel.shared.enums.FeeStatus;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import com.hostel.module.auth.AppUser;
 import com.hostel.module.auth.AppUserRepository;
 import com.hostel.module.room.Booking;
@@ -17,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -30,13 +34,14 @@ public class StudentService {
     private final AppUserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final PasswordEncoder passwordEncoder;
+    private final FeeRepository feeRepository;
      private final RoomRepository roomRepository;
 
     public StudentDtos.Response register(StudentDtos.RegisterRequest request) {
 
-    if (studentRepository.existsByEmail(request.getEmail())) {
-        throw new BusinessException("Email already registered: " + request.getEmail());
-    }
+    if (studentRepository.existsByEmailAndStatusNot(request.getEmail(), StudentStatus.DELETED)) {
+    throw new BusinessException("Email already registered: " + request.getEmail());
+}
 
     Student student = Student.builder()
             .studentId("Temp")
@@ -50,6 +55,7 @@ public class StudentService {
             .parentPhone(request.getParentPhone())
             .parentEmail(request.getParentEmail())
             .address(request.getAddress())
+            .hostelFee(request.getHostelFee())
             .dateOfBirth(request.getDateOfBirth())
             .gender(request.getGender())
             .bloodGroup(request.getBloodGroup())
@@ -78,7 +84,9 @@ public class StudentService {
     log.info("Registered new student: {} with ID: {}", student.getFullName(), studentId);
 
     return toResponse(student);
+     
 }
+
 
  
    @Transactional(readOnly = true)
@@ -173,32 +181,41 @@ public void checkout(Long id) {
 
     Student student = findOrThrow(id);
 
-    List<Booking> activeBookings = bookingRepository
-            .findAllByStudentIdAndStatus(student.getId(), BookingStatus.ACTIVE);
+    List<Booking> activeBookings =
+            bookingRepository.findAllByStudentIdAndStatus(student.getId(), BookingStatus.ACTIVE);
 
     if (activeBookings.isEmpty()) {
-        throw new BusinessException("No active booking found");
-    }
+    throw new BusinessException("No active booking found");
+}
+
+// Block checkout if student has unpaid fees
+long unpaidFees = feeRepository.countByStudentIdAndStatusIn(
+    student.getId(),
+    List.of(FeeStatus.PENDING, FeeStatus.PARTIAL, FeeStatus.OVERDUE)
+);
+if (unpaidFees > 0) {
+    throw new BusinessException("Student has " + unpaidFees + " unpaid fee(s). Please clear dues before checkout.");
+}
 
     for (Booking booking : activeBookings) {
+
+        Room room = booking.getRoom();
+        if (room == null) continue;
 
         booking.setStatus(BookingStatus.CHECKED_OUT);
         bookingRepository.save(booking);
 
-        Room room = booking.getRoom();
-
         long occupants = bookingRepository.countActiveByRoom(room.getId());
 
-        if (occupants == 0) {
-            room.setStatus(RoomStatus.AVAILABLE);
-        } else if (occupants < room.getCapacity()) {
-            room.setStatus(RoomStatus.AVAILABLE);
-        } else {
-            room.setStatus(RoomStatus.OCCUPIED);
-        }
+        room.setStatus(
+                occupants >= room.getCapacity()
+                        ? RoomStatus.OCCUPIED
+                        : RoomStatus.AVAILABLE
+        );
 
         roomRepository.save(room);
     }
 
     student.setStatus(StudentStatus.CHECKED_OUT);
+    studentRepository.save(student);
 }}

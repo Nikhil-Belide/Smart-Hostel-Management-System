@@ -24,6 +24,7 @@ public class RoomService {
     private final RoomRepository roomRepository;
     private final BookingRepository bookingRepository;
     private final StudentRepository studentRepository;
+ 
 
     public RoomDtos.RoomResponse createRoom(RoomDtos.CreateRoomRequest request) {
 
@@ -121,6 +122,7 @@ public class RoomService {
                 .build();
 
         booking = bookingRepository.save(booking);
+       
 
         updateRoomStatus(room);
 

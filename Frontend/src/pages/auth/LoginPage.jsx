@@ -47,7 +47,7 @@ export default function LoginPage() {
             <div style={styles.logoIcon}>🏨</div>
             <span style={styles.logoText}>SmartHostel</span>
           </div>
-          <h1 style={styles.heroTitle}>Manage ------ hostel<br /><span style={styles.accent}>intelligently.</span></h1>
+          <h1 style={styles.heroTitle}>Manage Your hostel<br /><span style={styles.accent}>intelligently.</span></h1>
           <p style={styles.heroSub}>One platform for wardens, students, and security staff. Real-time gatepass QR, fee tracking, complaints — all in one place.</p>
 
           <div style={styles.features}>
@@ -96,7 +96,7 @@ export default function LoginPage() {
             </form>
 
             {/* Quick login chips */}
-            <div style={styles.quickSection}>
+         {/*  <div style={styles.quickSection}>
               <div style={styles.quickLabel}>Quick demo login</div>
               <div style={styles.chips}>
                 {[
@@ -110,7 +110,7 @@ export default function LoginPage() {
                   </button>
                 ))}
               </div>
-            </div>
+            </div>*/}
           </div>
         </div>
       </div>

@@ -21,7 +21,7 @@ public class RoomDtos {
         @NotNull @Positive private Integer capacity;
         private Integer floor;
         private String block;
-        @NotNull @Positive private BigDecimal monthlyFee;
+        @Positive private BigDecimal monthlyFee;
         private String amenities;
         private String description;
     }

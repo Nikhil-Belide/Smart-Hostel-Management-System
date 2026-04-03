@@ -194,12 +194,25 @@ tbody td { padding: 0.85rem 1rem; color: var(--text2); vertical-align: middle; }
 tbody td:first-child { color: var(--text); font-weight: 500; }
 
 /* Modal */
-.modal-overlay {
+.modal {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-xl);
+
+  padding: 2rem;
+  margin: auto;
+
+  width: min(520px, 90vw);
+  height: 75vh;              /* fixed height */
+  display: flex;
+  flex-direction: column;
+
+  animation: fadeUp 0.3s ease;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+}
+.modal-overlay{
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+  inset: 0;
 
   background: rgba(0,0,0,0.75);
   backdrop-filter: blur(8px);
@@ -209,25 +222,6 @@ tbody td:first-child { color: var(--text); font-weight: 500; }
   display: flex;
   align-items: center;
   justify-content: center;
-
-  padding: 1.5rem;
-  animation: fadeIn 0.2s ease;
-}
-.modal {
-  background: var(--bg3);
-  border: 1px solid var(--border2);
-  border-radius: var(--r-xl);
-
-  padding: 2rem;
-
-  width: min(520px, 90vw);
-
-  max-height: calc(100vh - 60px - 3rem);
-  overflow-y: auto;
-
-  animation: fadeUp 0.3s ease;
-
-  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
 }
 .modal-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -340,4 +334,8 @@ tbody td:first-child { color: var(--text); font-weight: 500; }
   .sidebar { transform: translateX(-100%); }
   .main-content { margin-left: 0; }
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
+}
+/* Student Profile Modal - wider */
+.modal-wide{
+  width: min(760px, 92vw);
 }

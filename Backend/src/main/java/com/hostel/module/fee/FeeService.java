@@ -32,31 +32,50 @@ public class FeeService {
     private final StudentRepository studentRepository;
 
     private static final DateTimeFormatter MONTH_FMT = DateTimeFormatter.ofPattern("yyyy-MM");
+@Scheduled(cron = "0 0 8 * * *")
+public void generateMonthlyFeeRecords() {
 
-    // Auto-generate fee records on 1st of every month at 00:01
-    @Scheduled(cron = "0 1 0 1 * *")
-    public void generateMonthlyFeeRecords() {
-        String currentMonth = YearMonth.now().format(MONTH_FMT);
-        List<Booking> activeBookings = bookingRepository.findByStatus(BookingStatus.ACTIVE);
+    List<Booking> activeBookings = bookingRepository.findByStatus(BookingStatus.ACTIVE);
 
-        for (Booking booking : activeBookings) {
+    for (Booking booking : activeBookings) {
+
+        if (booking.getRoom() == null) continue;
+
+        Double hostelFee = booking.getStudent().getHostelFee();
+        if (hostelFee == null || hostelFee <= 0) continue;
+
+        LocalDate checkInDate = booking.getCheckInDate();
+        LocalDate today = LocalDate.now();
+
+        long monthsElapsed = java.time.temporal.ChronoUnit.MONTHS.between(checkInDate, today);
+
+        if (monthsElapsed <= 0) continue;
+
+        for (long month = 1; month <= monthsElapsed; month++) {
+            LocalDate feeDate = checkInDate.plusMonths(month);
+            String expectedMonth = feeDate.format(MONTH_FMT);
+
             boolean alreadyExists = feeRepository
-                    .findByStudentIdAndMonth(booking.getStudent().getId(), currentMonth)
+                    .findByStudentIdAndMonth(booking.getStudent().getId(), expectedMonth)
                     .isPresent();
+
             if (!alreadyExists) {
                 FeeRecord fee = FeeRecord.builder()
                         .student(booking.getStudent())
                         .room(booking.getRoom())
-                        .amount(booking.getRoom().getMonthlyFee())
-                        .month(currentMonth)
-                        .dueDate(LocalDate.now().plusDays(10))
+                        .amount(BigDecimal.valueOf(hostelFee))
+                        .month(expectedMonth)
+                        .dueDate(feeDate)
                         .status(FeeStatus.PENDING)
                         .build();
+
                 feeRepository.save(fee);
-                log.info("Generated fee for student {} for month {}", booking.getStudent().getStudentId(), currentMonth);
+                log.info("Generated fee for student {} month {}",
+                        booking.getStudent().getStudentId(), expectedMonth);
             }
         }
     }
+}
 
     // Manually trigger (for admin / testing)
     public int generateFeesForCurrentMonth() {

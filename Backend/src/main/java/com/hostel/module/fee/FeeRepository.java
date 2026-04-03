@@ -11,6 +11,7 @@ import java.util.Optional;
 public interface FeeRepository extends JpaRepository<FeeRecord, Long> {
     List<FeeRecord> findByStudentIdOrderByMonthDesc(Long studentId);
     List<FeeRecord> findByStatus(FeeStatus status);
+    long countByStudentIdAndStatusIn(Long studentId, List<FeeStatus> statuses);
     Optional<FeeRecord> findByStudentIdAndMonth(Long studentId, String month);
 
     @Query("SELECT COALESCE(SUM(f.amount), 0) FROM FeeRecord f WHERE f.student.id = :studentId AND f.status = 'PENDING'")

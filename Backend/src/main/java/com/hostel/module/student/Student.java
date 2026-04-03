@@ -56,6 +56,9 @@ public class Student {
     @Column(nullable = false)
     private StudentStatus status;
 
+    @Column(name = "hostel_fee")
+    private Double hostelFee;
+    
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
