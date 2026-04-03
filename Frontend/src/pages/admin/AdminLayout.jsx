@@ -1,5 +1,6 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import { useTheme } from '../../context/ThemeContext'
 import toast from 'react-hot-toast'
 
 const navItems = [
@@ -13,6 +14,7 @@ const navItems = [
 
 export default function AdminLayout() {
   const { user, logout } = useAuth()
+  const { isDark, toggleTheme } = useTheme()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -73,6 +75,12 @@ export default function AdminLayout() {
             <span style={{ fontSize: '0.8rem', color: 'var(--text2)' }}>
               {new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}
             </span>
+
+            {/* Theme Toggle */}
+            <button className="theme-toggle" onClick={toggleTheme} title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>
+              {isDark ? '☀️' : '🌙'}
+            </button>
+
             <div className="avatar" style={{ width: 30, height: 30, fontSize: '0.75rem' }}>
               {user?.username?.[0]?.toUpperCase()}
             </div>
