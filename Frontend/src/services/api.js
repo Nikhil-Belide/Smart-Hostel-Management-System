@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: '/api/v1',
+  baseURL: 'https://smart-hostel-management-system-thse.onrender.com/api/v1',
   headers: { 'Content-Type': 'application/json' },
 })
 
